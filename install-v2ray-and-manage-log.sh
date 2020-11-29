@@ -1,6 +1,6 @@
 #!/bin/bash
 # Copyright(C) by Kawakaze 2020.
-# v0.1.0
+# v0.1.1
 
 # 环境变量，路径尾部均不包含/
 
@@ -81,4 +81,3 @@ systemctl daemon-reload
 # 打印v2ray配置文件路径，以便修改
 echo "Config file path:"
 echo "$v2rayconfigpath/config.json"
-
