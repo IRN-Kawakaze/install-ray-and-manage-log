@@ -71,6 +71,9 @@ EOF
 # 给日志管理脚本赋权
 chmod +x $scriptspath/cleanv2raylog.sh
 
+# 删除可能已经存在的自动清理日志的定时任务
+sed -i '/cleanv2raylog\.sh/d' $usercrontabfile
+
 # 添加自动清理日志的定时任务，每个月清理一次
 echo "0 5 1 * * $scriptspath/cleanv2raylog.sh" >> $usercrontabfile
 
