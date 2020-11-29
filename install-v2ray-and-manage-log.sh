@@ -75,7 +75,7 @@ chmod +x $scriptspath/cleanv2raylog.sh
 sed -i '/cleanv2raylog\.sh/d' $usercrontabfile
 
 # 添加自动清理日志的定时任务，每个月清理一次
-echo "0 5 1 * * $scriptspath/cleanv2raylog.sh" >> $usercrontabfile
+echo "0 5 1 * * $scriptspath/cleanv2raylog.sh >> /dev/null 2>&1" >> $usercrontabfile
 
 # 修改v2ray的最大句柄数和最大进程数
 sed -i '/\[Service\]/a\LimitCORE=infinity\nLimitNOFILE=16384\nLimitNPROC=16384\n' $v2rayservice
