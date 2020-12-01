@@ -77,7 +77,7 @@ sed -i '/cleanv2raylog\.sh/d' $usercrontabfile
 echo "0 5 1 * * $scriptspath/cleanv2raylog.sh >> /dev/null 2>&1" >> $usercrontabfile
 
 # 修改v2ray的最大句柄数和最大进程数
-sed -i '/\[Service\]/a\LimitCORE=infinity\nLimitNOFILE=16384\nLimitNPROC=16384\n' $v2rayservice
+sed -i '/\[Service\]/a\LimitCORE=infinity\nLimitNOFILE=12800\nLimitNPROC=12800\n' $v2rayservice
 systemctl daemon-reload
 
 # 打印v2ray配置文件路径，以便修改
