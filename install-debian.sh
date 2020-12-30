@@ -84,5 +84,8 @@ sed -i '/\[Service\]/a\LimitCORE=infinity\nLimitNOFILE=12800\nLimitNPROC=12800\n
 systemctl daemon-reload
 
 # 打印v2ray配置文件路径，以便修改
+echo " "
+echo "=================================================="
 echo "Config file path:"
 echo "$v2rayconfigpath/config.json"
+echo "=================================================="
