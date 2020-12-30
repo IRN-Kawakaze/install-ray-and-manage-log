@@ -34,11 +34,11 @@ wget -4 --spider --quiet --tries=3 --timeout=3 https://raw.githubusercontent.com
 # 安装v2ray，如果安装失败则直接退出
 bash <(curl https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh) || { echo "ERROR\: Install v2ray failed.";exit 1; }    
 
-# 创建证书文件存放文件夹
-mkdir -p $v2rayconfigpath/cert
-
 # 删除可能存在的多配置文件
 rm -f $v2rayconfigpath/*
+
+# 创建证书文件存放文件夹
+mkdir -p $v2rayconfigpath/cert
 
 # 创建日志文件存放路径
 mkdir -p $v2raylogpath/
