@@ -6,9 +6,7 @@
 # v2ray配置文件存放路径
 v2rayconfigpath=/usr/local/etc/v2ray
 # v2ray日志文件存放路径
-v2raylogpath=/tmp/log/v2ray
-# v2ray日志文件存放路径的上级目录
-v2raylogpathparentdirectory=/tmp/log
+v2raylogpath=/var/log/v2ray
 # v2ray服务文件的绝对路径
 v2rayservice=/etc/systemd/system/v2ray.service
 # 脚本存放路径
@@ -39,18 +37,6 @@ rm -f $v2rayconfigpath/*
 
 # 创建证书文件存放文件夹
 mkdir -p $v2rayconfigpath/cert
-
-# 创建日志文件存放路径
-mkdir -p $v2raylogpath/
-
-# 创建日志文件
-echo "" > $v2raylogpath/access.log
-echo "" > $v2raylogpath/error.log
-
-# 给日志文件及其存放路径赋权
-chmod 1777 $v2raylogpathparentdirectory
-chmod 1777 $v2raylogpath
-chmod 1666 $v2raylogpath/*
 
 # 创建日志管理脚本存放路径
 mkdir -p $scriptspath/
