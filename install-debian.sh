@@ -42,7 +42,7 @@ mkdir -p $v2rayconfigpath/cert
 mkdir -p $scriptspath/
 
 # 创建日志管理脚本
-cat <<EOF > $scriptspath/cleanv2raylog.sh
+cat << EOF > $scriptspath/cleanv2raylog.sh
 #!/bin/bash
 
 # 删除现有的日志备份文件
