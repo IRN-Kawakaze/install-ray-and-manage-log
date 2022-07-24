@@ -82,6 +82,9 @@ EOF
     # 使修改后的定时任务生效
     crontab crontab.temp
 
+    # 删除临时文件
+    rm crontab.temp
+
     # 运行“函数-修改 service 文件”
     modify_service_file
 
@@ -101,12 +104,18 @@ update_v2ray() {
     # 停止 v2ray
     systemctl stop v2ray
 
+    # 等待 1s
+    sleep 1
+
     # 安装 v2ray，如果安装失败则直接退出
     bash <(curl https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh) || { echo -e "ERROR\: Update v2ray failed.\n" ; exit 1 ; }    
     echo -e "\n"
 
     # 运行“函数-修改 service 文件”
     modify_service_file
+
+    # 等待 1s
+    sleep 1
 
     # 启动 v2ray
     systemctl start v2ray
