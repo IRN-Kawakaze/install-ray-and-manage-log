@@ -1,53 +1,170 @@
 #!/bin/bash
 # Copyright 2022 by Kawakaze
 
-# 环境变量，路径尾部均不包含 /
+# 设置常量，路径尾部均不包含 /
 
-# v2ray配置文件存放路径
+# v2ray 配置文件存放路径
 v2ray_config_path=/usr/local/etc/v2ray
-# v2ray日志文件存放路径
+# v2ray 日志文件存放路径
 v2ray_log_path=/var/log/v2ray
-# v2ray服务文件的绝对路径
-v2ray_service_file=/etc/systemd/system/v2ray.service
+# v2ray 服务文件的存放路径
+v2ray_service_path=/etc/systemd/system
 # 脚本存放路径
 user_script_path=/etc/userscript
 
 
-# 为显示内容做好准备：
-echo -e "\n"
+# 函数-运行前检查
+check_before_running() {
+    # 判断脚本是否由 root 用户运行，如果不是，则报错并退出
+    [ "$(whoami)" == "root" ] || { echo -e "ERROR: This script must be run by root, please run \"sudo su\" before running this script.\n" ; exit 1 ; }
 
-# 判断脚本是否由 root 用户运行，如果不是，则报错并退出：
-[ "$(whoami)" == "root" ] || { echo -e "ERROR: This script must be run by root, please run \"sudo su\" before running this script.\n" ; exit 1 ; }
+    # 判断 /etc/debian_version 文件是否存在，如果不存在，则报错并退出
+    [ -f /etc/debian_version ] || { echo -e "ERROR: This system is not supported, please install Debian.\n" ; exit 1 ; }
 
-# 判断 /etc/debian_version 文件是否存在，如果不存在，则报错并退出：
-[ -f /etc/debian_version ] || { echo -e "ERROR: This system is not supported, please install Debian.\n" ; exit 1 ; }
+    # 检查依赖
+    command -v rm > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"rm\".\n" ; exit 1 ; }
+    command -v cat > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"cat\".\n" ; exit 1 ; }
+    command -v sed > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"sed\".\n" ; exit 1 ; }
+    command -v chmod > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"chmod\".\n" ; exit 1 ; }
+    command -v mkdir > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"mkdir\".\n" ; exit 1 ; }
+    command -v curl > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"curl\".\n" ; exit 1 ; }
+    command -v wget > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"wget\".\n" ; exit 1 ; }
+    command -v crontab > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"crontab\".\n" ; exit 1 ; }
+    command -v systemctl > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"systemctl\".\n" ; exit 1 ; }
+    command -v systemd-sysusers > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"systemd-sysusers\".\n" ; exit 1 ; }
+    command -v systemd-tmpfiles > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"systemd-tmpfiles\".\n" ; exit 1 ; }
 
-# 检查依赖
-command -v rm > /dev/null 2>&1 || { echo -e "ERROR\: Cannot run \"rm\" command.\n" ; exit 1 ; }
-command -v cat > /dev/null 2>&1 || { echo -e "ERROR\: Cannot run \"cat\" command.\n" ; exit 1 ; }
-command -v sed > /dev/null 2>&1 || { echo -e "ERROR\: Cannot run \"sed\" command.\n" ; exit 1 ; }
-command -v chmod > /dev/null 2>&1 || { echo -e "ERROR\: Cannot run \"chmod\" command.\n" ; exit 1 ; }
-command -v mkdir > /dev/null 2>&1 || { echo -e "ERROR\: Cannot run \"mkdir\" command.\n" ; exit 1 ; }
-command -v curl > /dev/null 2>&1 || { echo -e "ERROR\: You should install \"curl\" first.\n" ; exit 1 ; }
-command -v wget > /dev/null 2>&1 || { echo -e "ERROR\: You should install \"wget\" first.\n" ; exit 1 ; }
-command -v crontab > /dev/null 2>&1 || { echo -e "ERROR\: You should install \"crontab\" first.\n" ; exit 1 ; }
-command -v systemctl > /dev/null 2>&1 || { echo -e "ERROR\: You should install \"systemctl\" first.\n" ; exit 1 ; }
+    # 检查和 GitHub 的网络连接是否正常，如果不正常则直接退出
+    wget -4 --spider --quiet --tries=3 --timeout=3 https://raw.githubusercontent.com || { echo -e "ERROR: Cannot connect to GitHub.\n" ; exit 1 ; }
 
-# 检查和 GitHub 的网络连接是否正常，如果不正常则直接退出
-wget -4 --spider --quiet --tries=3 --timeout=3 https://raw.githubusercontent.com || { echo -e "ERROR\: Cannot connect to GitHub.\n" ; exit 1 ; }    
+    # 检查 v2ray 服务是否有更新
+    [ "$(curl --silent https://raw.githubusercontent.com/v2fly/v2ray-core/master/release/debian/v2ray.service | sha256sum -)" \
+== "31c66c3daf2241d542c0c4a9da74e4831710296fc2536bdbd9d7b0c0dd31efde  -" ] || \
+{ echo -e "ERROR: v2ray.service version not match.\n" ; exit 1 ; }
+    [ "$(curl --silent https://raw.githubusercontent.com/v2fly/v2ray-core/master/release/debian/v2ray%40.service | sha256sum -)" \
+== "87b1bd96bf48039a7b6ac4bde078e5e0c2c5fe58d5589d919cb1b3d7b6aea980  -" ] || \
+{ echo -e "ERROR: v2ray@.service version not match.\n" ; exit 1 ; }
+
+}
+
+# 函数-设置 v2ray
+set_v2ray() {
+
+    # 安装 v2ray，如果安装失败则直接退出
+    bash <(curl https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh) || { echo -e "ERROR\: Install v2ray failed.\n" ; exit 1 ; }
+    echo -e "\n"
+
+    # 添加 systemd 专属用户配置
+    echo 'u v2ray - "V2Ray Service" - -' > /usr/lib/sysusers.d/v2ray.conf
+
+    # 检查 systemd 专属用户配置的 SHA256SUM 是否正确，如果错误则直接退出
+    echo "caca9d88eff50ce7cd695b6fcab4d253344e92c966780f7de6d5c531d48ed80e  /usr/lib/sysusers.d/v2ray.conf" | sha256sum -c - || exit 1
+    echo -e "\n"
+
+    # 设置文件权限
+    chmod 644 /usr/lib/sysusers.d/v2ray.conf
+
+    # 添加 systemd 临时文件（夹）配置
+    echo 'd /var/log/v2ray 0700 v2ray v2ray - -' > /usr/lib/tmpfiles.d/v2ray.conf
+
+    # 检查 systemd 临时文件（夹）配置的 SHA256SUM 是否正确，如果错误则直接退出
+    echo "ae55077bcf7140a7460f192adb03009b4573ec4420af84f4cbe9828cf8ca8e06  /usr/lib/tmpfiles.d/v2ray.conf" | sha256sum -c - || exit 1
+    echo -e "\n"
+
+    # 设置文件权限
+    chmod 644 /usr/lib/tmpfiles.d/v2ray.conf
+
+    # 使 systemd 专属用户配置生效
+    # 若是首次创建 systemd 专属用户（v2ray），则额外显示空行以改善显示效果
+    id v2ray &> /dev/null
+    if [ "$?" != "0" ]; then
+        systemd-sysusers v2ray.conf
+        echo -e "\n"
+    else
+        systemd-sysusers v2ray.conf
+    fi
+
+    # 使 systemd 临时文件（夹）配置生效
+    systemd-tmpfiles --create v2ray.conf
+
+    # 修改 v2ray 服务
+    cat << \EOF > ${v2ray_service_path}/v2ray.service
+[Unit]
+Description=V2Ray Service
+Documentation=https://www.v2fly.org/
+After=network.target nss-lookup.target
+
+[Service]
+LimitCORE=infinity
+LimitNOFILE=12800
+LimitNPROC=12800
+User=v2ray
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+ExecStart=/usr/local/bin/v2ray -config /usr/local/etc/v2ray/config.json
+Restart=on-failure
+RestartPreventExitStatus=23
+
+[Install]
+WantedBy=multi-user.target
+
+EOF
+    cat << \EOF > ${v2ray_service_path}/v2ray@.service
+[Unit]
+Description=V2Ray Service
+Documentation=https://www.v2fly.org/
+After=network.target nss-lookup.target
+
+[Service]
+LimitCORE=infinity
+LimitNOFILE=12800
+LimitNPROC=12800
+User=v2ray
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+ExecStart=/usr/local/bin/v2ray -config /usr/local/etc/v2ray/%i.json
+Restart=on-failure
+RestartPreventExitStatus=23
+
+[Install]
+WantedBy=multi-user.target
+
+EOF
+
+    # 设置文件权限
+    chmod 644 /etc/systemd/system/v2ray.service
+    chmod 644 /etc/systemd/system/v2ray@.service
+
+    # 检查 v2ray 服务的 SHA256SUM 是否正确，如果错误则直接退出
+    echo "9158012aed8181a53130b4592606c899cd1d89c0c44c4180256f8eb7fd1da345  /etc/systemd/system/v2ray.service" | sha256sum -c - || exit 1
+    echo -e "\n"
+    echo "8c57dd4964a01b3879911f5e90ca2e6d88b3fcf6d8ff5e7b6bc22f9ebbad97df  /etc/systemd/system/v2ray@.service" | sha256sum -c - || exit 1
+    echo -e "\n"
+
+    # 重新加载 v2ray 服务，使修改生效
+    systemctl daemon-reload
+
+}
 
 # 函数-安装 v2ray
 install_v2ray() {
 
-    # 安装 v2ray，如果安装失败则直接退出
-    bash <(curl https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh) || { echo -e "ERROR\: Install v2ray failed.\n" ; exit 1 ; }    
-    echo -e "\n"
+    # 运行“函数-设置 v2ray”
+    set_v2ray
+
+    # 删除可能存在的权限错误的日志文件
+    rm ${v2ray_log_path}/*
 
     # 删除可能存在的多配置文件
-    rm -f ${v2ray_config_path}/*
+    rm ${v2ray_config_path}/*
 
     # 创建证书文件存放文件夹
     mkdir -p ${v2ray_config_path}/cert
+
+    # 修改文件夹所有者和组
+    chown -R v2ray:v2ray ${v2ray_config_path}/cert
 
     # 创建日志管理脚本存放路径
     mkdir -p ${user_script_path}/
@@ -67,8 +184,12 @@ echo "" > ${v2ray_log_path}/access.log
 
 EOF
 
-    # 给日志管理脚本赋权
-    chmod +x ${user_script_path}/cleanv2raylog.sh
+    # 检查日志管理脚本的 SHA256SUM 是否正确，如果错误则直接退出
+    echo "8199da3323e9222d3d7c05497bfcce792411a4a78937a1137df41c004d0630b6  ${user_script_path}/cleanv2raylog.sh" | sha256sum -c - || exit 1
+    echo -e "\n"
+
+    # 设置文件权限
+    chmod 755 ${user_script_path}/cleanv2raylog.sh
 
     # 导出现有的定时任务
     crontab -l > crontab.temp
@@ -84,9 +205,6 @@ EOF
 
     # 删除临时文件
     rm crontab.temp
-
-    # 运行“函数-修改 service 文件”
-    modify_service_file
 
     # 打印 v2ray 配置文件路径，以便修改
     echo -e "\n"
@@ -107,12 +225,8 @@ update_v2ray() {
     # 等待 1s
     sleep 1
 
-    # 安装 v2ray，如果安装失败则直接退出
-    bash <(curl https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh) || { echo -e "ERROR\: Update v2ray failed.\n" ; exit 1 ; }    
-    echo -e "\n"
-
-    # 运行“函数-修改 service 文件”
-    modify_service_file
+    # 运行“函数-设置 v2ray”
+    set_v2ray
 
     # 等待 1s
     sleep 1
@@ -120,11 +234,14 @@ update_v2ray() {
     # 启动 v2ray
     systemctl start v2ray
 
+    # 等待 1s
+    sleep 1
+
     # 显示 v2ray 运行状态
     systemctl status v2ray
+    echo -e "\n"
 
     # 显示 v2ray 更新完毕
-    echo -e "\n"
     echo "=================================================="
     echo "Update v2ray successful."
     echo "=================================================="
@@ -132,25 +249,25 @@ update_v2ray() {
 
 }
 
-# 函数-修改 service 文件
-modify_service_file() {
+# 函数-主函数
+main() {
 
-    # 清除对 service 文件的修改
-    sed -i '/LimitCORE=/d' ${v2ray_service_file} && sed -i '/LimitNOFILE=/d' ${v2ray_service_file} && sed -i '/LimitNPROC=/d' ${v2ray_service_file}
+    # 为显示内容做好准备
+    echo -e "\n"
 
-    # 修改 v2ray 的最大句柄数和最大进程数
-    sed -i '/\[Service\]/a\LimitCORE=infinity\nLimitNOFILE=12800\nLimitNPROC=12800' ${v2ray_service_file}
+    # 运行“函数-运行前检查”
+    check_before_running
 
-    # 重新加载 service 文件，使修改生效
-    systemctl daemon-reload
+    # 检查是否已安装 v2ray，如果已安装 v2ray，则运行“函数-更新 v2ray”，否则运行“函数-安装 v2ray”
+    command -v v2ray > /dev/null 2>&1
+    if [ "$?" == "0" ]; then
+        update_v2ray
+    else
+        install_v2ray
+    fi
 
 }
 
-# 检查是否已安装 v2ray，如果已安装 v2ray，则运行“函数-更新 v2ray”，否则运行“函数-安装 v2ray”
-command -v v2ray > /dev/null 2>&1
-if [ "$?" == "0" ]; then
-    update_v2ray
-else
-    install_v2ray
-fi
+# 运行“函数-主函数”
+main
 
