@@ -35,7 +35,7 @@ check_before_running() {
     command -v systemd-tmpfiles > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"systemd-tmpfiles\".\n" ; exit 1 ; }
 
     # 检查和 GitHub 的网络连接是否正常，如果不正常则直接退出
-    wget -4 --spider --quiet --tries=3 --timeout=3 https://raw.githubusercontent.com || { echo -e "ERROR: Cannot connect to GitHub.\n" ; exit 1 ; }
+    wget --spider --quiet --tries=3 --timeout=15 https://raw.githubusercontent.com || { echo -e "ERROR: Cannot connect to GitHub.\n" ; exit 1 ; }
 
     # 检查 v2ray 服务是否有更新
     [ "$(curl --silent https://raw.githubusercontent.com/v2fly/v2ray-core/master/release/debian/v2ray.service | sha256sum -)" \
