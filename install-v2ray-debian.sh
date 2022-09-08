@@ -128,7 +128,7 @@ RestartPreventExitStatus=23
 WantedBy=multi-user.target
 
 EOF
-    cat << \EOF > ${v2ray_service_path}/v2ray@.service
+    cat << \EOF > ${v2ray_service_path}/v2ray\@.service
 [Unit]
 Description=V2Ray Service
 Documentation=https://www.v2fly.org/
@@ -153,12 +153,12 @@ EOF
 
     # 设置文件权限
     chmod 644 /etc/systemd/system/v2ray.service
-    chmod 644 /etc/systemd/system/v2ray@.service
+    chmod 644 /etc/systemd/system/v2ray\@.service
 
     # 检查 v2ray 服务的 SHA256SUM 是否正确，如果错误则直接退出
     echo "46241bbae6e318954b374fc08f82b1f655225a23d8123ed3ef0ebf44433b8b5a  /etc/systemd/system/v2ray.service" | sha256sum -c - || exit 1
     echo -e "\n"
-    echo "81373e66e3fbded5661f83a9e4971f5653f46f5fd6c39d4d8383fd5e287e9923  /etc/systemd/system/v2ray@.service" | sha256sum -c - || exit 1
+    echo '81373e66e3fbded5661f83a9e4971f5653f46f5fd6c39d4d8383fd5e287e9923  /etc/systemd/system/v2ray@.service' | sha256sum -c - || exit 1
     echo -e "\n"
 
     # 重新加载 v2ray 服务，使修改生效
