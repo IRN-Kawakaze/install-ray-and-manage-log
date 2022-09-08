@@ -45,6 +45,30 @@ check_before_running() {
 == "87b1bd96bf48039a7b6ac4bde078e5e0c2c5fe58d5589d919cb1b3d7b6aea980  -" ] || \
 { echo -e "ERROR: v2ray@.service version not match.\n" ; exit 1 ; }
 
+    # 检查是否已安装 v2ray，若是则判断是否已安装最新版
+    if [ -f '/usr/local/bin/v2ray' ]; then
+
+        # 获取已安装的 v2ray 版本（不适用于 v5）
+        v2ray_current_version="$(/usr/local/bin/v2ray -version | awk 'NR==1 {print $2}')"
+
+        # 如果没获取到，则重新尝试获取已安装的 v2ray 版本（只适用于 v5）
+        if [ -z "${v2ray_current_version}" ]; then
+            v2ray_current_version="$(/usr/local/bin/v2ray version | awk 'NR==1 {print $2}')"
+        fi
+
+        # 获取 v2ray 最新 release 版本号
+        v2ray_release_latest_version="$(curl -sS -H 'Accept: application/vnd.github+json' https://api.github.com/repos/v2fly/v2ray-core/releases/latest \
+| grep 'tag_name' \
+| awk -F '"' '{print $4}')"
+
+        # 检查已安装版本是否是最新版本，若是则提示无新版本可供更新并退出
+        if [ "${v2ray_current_version}" == "${v2ray_release_latest_version#v}" ]; then
+            echo -e "No new version to update.\n"
+            exit 0
+        fi
+
+    fi
+
 }
 
 # 函数-设置 v2ray
