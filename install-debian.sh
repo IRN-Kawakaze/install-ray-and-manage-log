@@ -55,7 +55,9 @@ check_before_running() {
 
         # 检查已安装版本是否是最新版本，若是则提示无新版本可供更新并退出
         if [ "${v2ray_current_version}" == "${v2ray_release_latest_version#v}" ]; then
-            echo -e "No new version to update.\n"
+            echo "=================================================="
+            echo "No new version for update."
+            echo "=================================================="
             exit 0
         fi
 
@@ -171,10 +173,10 @@ install_v2ray() {
     set_v2ray
 
     # 删除可能存在的权限错误的日志文件
-    rm ${v2ray_log_path}/*
+    rm -rf ${v2ray_log_path}/*
 
     # 删除可能存在的多配置文件
-    rm ${v2ray_config_path}/*
+    rm -rf ${v2ray_config_path}/*
 
     # 创建证书文件存放文件夹
     mkdir -p ${v2ray_config_path}/cert
@@ -222,9 +224,10 @@ EOF
     # 删除临时文件
     rm crontab.temp
 
-    # 打印 v2ray 配置文件路径，以便修改
-    echo -e "\n"
+    # 提示安装完毕，并提示 v2ray 配置文件路径，以便修改
     echo "=================================================="
+    echo "Install v2ray successful."
+    echo ""
     echo "Config file path:"
     echo "${v2ray_config_path}/config.json"
     echo "=================================================="
@@ -257,7 +260,7 @@ update_v2ray() {
     systemctl status v2ray
     echo -e "\n"
 
-    # 显示 v2ray 更新完毕
+    # 提示 v2ray 更新完毕
     echo "=================================================="
     echo "Update v2ray successful."
     echo "=================================================="
