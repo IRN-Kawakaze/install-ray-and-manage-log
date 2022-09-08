@@ -37,14 +37,6 @@ check_before_running() {
     # 检查和 GitHub 的网络连接是否正常，如果不正常则直接退出
     wget --spider --quiet --tries=3 --timeout=15 https://raw.githubusercontent.com || { echo -e "ERROR: Cannot connect to GitHub.\n" ; exit 1 ; }
 
-    # 检查 v2ray 服务是否有更新
-    [ "$(curl --silent https://raw.githubusercontent.com/v2fly/v2ray-core/master/release/debian/v2ray.service | sha256sum -)" \
-== "31c66c3daf2241d542c0c4a9da74e4831710296fc2536bdbd9d7b0c0dd31efde  -" ] || \
-{ echo -e "ERROR: v2ray.service version not match.\n" ; exit 1 ; }
-    [ "$(curl --silent https://raw.githubusercontent.com/v2fly/v2ray-core/master/release/debian/v2ray%40.service | sha256sum -)" \
-== "87b1bd96bf48039a7b6ac4bde078e5e0c2c5fe58d5589d919cb1b3d7b6aea980  -" ] || \
-{ echo -e "ERROR: v2ray@.service version not match.\n" ; exit 1 ; }
-
     # 检查是否已安装 v2ray，若是则判断是否已安装最新版
     if [ -f '/usr/local/bin/v2ray' ]; then
 
