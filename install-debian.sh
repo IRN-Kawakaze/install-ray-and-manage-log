@@ -41,11 +41,11 @@ check_before_running() {
     if [ -f '/usr/local/bin/v2ray' ]; then
 
         # 获取已安装的 v2ray 版本（不适用于 v5）
-        v2ray_current_version="$(/usr/local/bin/v2ray -version | awk 'NR==1 {print $2}')"
+        v2ray_current_version="$(/usr/local/bin/v2ray -version 2> /dev/null | awk -F ' ' 'NR==1 {print $2}')"
 
         # 如果没获取到，则重新尝试获取已安装的 v2ray 版本（只适用于 v5）
         if [ -z "${v2ray_current_version}" ]; then
-            v2ray_current_version="$(/usr/local/bin/v2ray version | awk 'NR==1 {print $2}')"
+            v2ray_current_version="$(/usr/local/bin/v2ray version 2> /dev/null | awk -F ' ' 'NR==1 {print $2}')"
         fi
 
         # 获取 v2ray 最新 release 版本号
