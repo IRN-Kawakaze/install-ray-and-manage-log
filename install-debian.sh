@@ -118,7 +118,7 @@ User=v2ray
 CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
 AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
 NoNewPrivileges=true
-ExecStart=/usr/local/bin/v2ray -config /usr/local/etc/v2ray/config.json
+ExecStart=/usr/local/bin/v2ray run -config /usr/local/etc/v2ray/config.json
 Restart=on-failure
 RestartPreventExitStatus=23
 
@@ -140,7 +140,7 @@ User=v2ray
 CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
 AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
 NoNewPrivileges=true
-ExecStart=/usr/local/bin/v2ray -config /usr/local/etc/v2ray/%i.json
+ExecStart=/usr/local/bin/v2ray run -config /usr/local/etc/v2ray/%i.json
 Restart=on-failure
 RestartPreventExitStatus=23
 
@@ -154,9 +154,9 @@ EOF
     chmod 644 /etc/systemd/system/v2ray@.service
 
     # 检查 v2ray 服务的 SHA256SUM 是否正确，如果错误则直接退出
-    echo "9158012aed8181a53130b4592606c899cd1d89c0c44c4180256f8eb7fd1da345  /etc/systemd/system/v2ray.service" | sha256sum -c - || exit 1
+    echo "46241bbae6e318954b374fc08f82b1f655225a23d8123ed3ef0ebf44433b8b5a  /etc/systemd/system/v2ray.service" | sha256sum -c - || exit 1
     echo -e "\n"
-    echo "8c57dd4964a01b3879911f5e90ca2e6d88b3fcf6d8ff5e7b6bc22f9ebbad97df  /etc/systemd/system/v2ray@.service" | sha256sum -c - || exit 1
+    echo "81373e66e3fbded5661f83a9e4971f5653f46f5fd6c39d4d8383fd5e287e9923  /etc/systemd/system/v2ray@.service" | sha256sum -c - || exit 1
     echo -e "\n"
 
     # 重新加载 v2ray 服务，使修改生效
