@@ -172,6 +172,10 @@ install_v2ray() {
     # 运行“函数-设置 v2ray”
     set_v2ray
 
+    # 删除额外的 v2ray 服务文件
+    rm -rf /etc/systemd/system/v2ray.service.d/*
+    rm -rf /etc/systemd/system/v2ray\@.service.d/*
+
     # 删除可能存在的权限错误的日志文件
     rm -rf ${v2ray_log_path}/*
 
