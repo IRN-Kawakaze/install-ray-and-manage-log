@@ -176,6 +176,9 @@ install_v2ray() {
     rm -rf /etc/systemd/system/v2ray.service.d/*
     rm -rf /etc/systemd/system/v2ray\@.service.d/*
 
+    # 重新加载 v2ray 服务，使修改生效
+    systemctl daemon-reload
+
     # 删除可能存在的权限错误的日志文件
     rm -rf ${v2ray_log_path}/*
 
