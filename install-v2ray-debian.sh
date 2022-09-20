@@ -195,7 +195,7 @@ install_v2ray() {
     mkdir -p ${user_script_path}/
 
     # 创建日志管理脚本
-    cat << EOF > ${user_script_path}/cleanv2raylog.sh
+    cat << EOF > ${user_script_path}/clean_v2ray_log.sh
 #!/bin/bash
 
 # 删除现有的日志备份文件
@@ -210,20 +210,20 @@ cat /dev/null > ${v2ray_log_path}/access.log
 EOF
 
     # 检查日志管理脚本的 SHA256SUM 是否正确，如果错误则直接退出
-    echo "508af5fd7e78c786d04998ecc24cc0b0958afc3d2c8b72d11b90d0b3ffabc403  ${user_script_path}/cleanv2raylog.sh" | sha256sum -c - || exit 1
+    echo "508af5fd7e78c786d04998ecc24cc0b0958afc3d2c8b72d11b90d0b3ffabc403  ${user_script_path}/clean_v2ray_log.sh" | sha256sum -c - || exit 1
     echo -e "\n"
 
     # 设置文件权限
-    chmod 755 ${user_script_path}/cleanv2raylog.sh
+    chmod 755 ${user_script_path}/clean_v2ray_log.sh
 
     # 导出现有的定时任务
     crontab -l > crontab.temp
 
     # 删除可能已经存在的自动清理日志的定时任务
-    sed -i '/cleanv2raylog\.sh/d' crontab.temp
+    sed -i '/clean_v2ray_log\.sh/d' crontab.temp
 
     # 添加自动清理日志的定时任务，每个月清理一次
-    echo "0 5 1 * * ${user_script_path}/cleanv2raylog.sh > /dev/null 2>&1" >> crontab.temp
+    echo "0 5 1 * * ${user_script_path}/clean_v2ray_log.sh > /dev/null 2>&1" >> crontab.temp
 
     # 使修改后的定时任务生效
     crontab crontab.temp
