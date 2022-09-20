@@ -223,7 +223,7 @@ EOF
     sed -i '/cleanv2raylog\.sh/d' crontab.temp
 
     # 添加自动清理日志的定时任务，每个月清理一次
-    echo "0 5 1 * * ${user_script_path}/cleanv2raylog.sh >> /dev/null 2>&1" >> crontab.temp
+    echo "0 5 1 * * ${user_script_path}/cleanv2raylog.sh > /dev/null 2>&1" >> crontab.temp
 
     # 使修改后的定时任务生效
     crontab crontab.temp
