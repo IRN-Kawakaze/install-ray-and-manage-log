@@ -205,12 +205,12 @@ rm -f ${v2ray_log_path}/access.log.backup
 cp ${v2ray_log_path}/access.log ${v2ray_log_path}/access.log.backup
 
 # 清空当前的日志文件
-echo "" > ${v2ray_log_path}/access.log
+cat /dev/null > ${v2ray_log_path}/access.log
 
 EOF
 
     # 检查日志管理脚本的 SHA256SUM 是否正确，如果错误则直接退出
-    echo "8199da3323e9222d3d7c05497bfcce792411a4a78937a1137df41c004d0630b6  ${user_script_path}/cleanv2raylog.sh" | sha256sum -c - || exit 1
+    echo "508af5fd7e78c786d04998ecc24cc0b0958afc3d2c8b72d11b90d0b3ffabc403  ${user_script_path}/cleanv2raylog.sh" | sha256sum -c - || exit 1
     echo -e "\n"
 
     # 设置文件权限
