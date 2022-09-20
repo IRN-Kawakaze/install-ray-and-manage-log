@@ -210,7 +210,7 @@ cat /dev/null > ${v2ray_log_path}/access.log
 EOF
 
     # 检查“清理 v2ray 日志”脚本的校验和是否正确，如果错误则直接退出
-    echo "508af5fd7e78c786d04998ecc24cc0b0958afc3d2c8b72d11b90d0b3ffabc403  ${user_script_path}/clean_v2ray_log.sh" | sha256sum -c - || exit 1
+    echo "babe2e51dc3d89e46b931668f4d7b30c0a5b247471e2db4a6f5f420494587241  ${user_script_path}/clean_v2ray_log.sh" | sha256sum -c - || exit 1
     echo -e "\n"
 
     # 设置文件权限
