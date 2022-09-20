@@ -219,9 +219,6 @@ EOF
     # 导出现有的定时任务
     crontab -l > crontab.temp
 
-    # 删除可能已经存在的自动清理日志的定时任务
-    sed -i '/clean_v2ray_log\.sh/d' crontab.temp
-
     # 添加自动清理日志的定时任务，每个月清理一次
     echo "0 5 1 * * ${user_script_path}/clean_v2ray_log.sh > /dev/null 2>&1" >> crontab.temp
 
