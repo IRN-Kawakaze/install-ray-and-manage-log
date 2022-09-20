@@ -191,10 +191,10 @@ install_v2ray() {
     # 修改文件夹所有者和组
     chown -R v2ray:v2ray ${v2ray_config_path}/cert
 
-    # 创建日志管理脚本存放路径
+    # 创建“清理 v2ray 日志”脚本的存放路径
     mkdir -p ${user_script_path}/
 
-    # 创建日志管理脚本
+    # 创建“清理 v2ray 日志”脚本
     cat << EOF > ${user_script_path}/clean_v2ray_log.sh
 #!/bin/bash
 
@@ -209,7 +209,7 @@ cat /dev/null > ${v2ray_log_path}/access.log
 
 EOF
 
-    # 检查日志管理脚本的 SHA256SUM 是否正确，如果错误则直接退出
+    # 检查“清理 v2ray 日志”脚本的校验和是否正确，如果错误则直接退出
     echo "508af5fd7e78c786d04998ecc24cc0b0958afc3d2c8b72d11b90d0b3ffabc403  ${user_script_path}/clean_v2ray_log.sh" | sha256sum -c - || exit 1
     echo -e "\n"
 
