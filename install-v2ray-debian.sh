@@ -198,6 +198,8 @@ install_v2ray() {
     cat << EOF > ${user_script_path}/clean_v2ray_log.sh
 #!/bin/bash
 
+source /etc/profile
+
 # 删除现有的日志备份文件
 rm -f ${v2ray_log_path}/access.log.backup
 
@@ -210,7 +212,7 @@ cat /dev/null > ${v2ray_log_path}/access.log
 EOF
 
     # 检查“清理 v2ray 日志”脚本的校验和是否正确，如果错误则直接退出
-    echo "babe2e51dc3d89e46b931668f4d7b30c0a5b247471e2db4a6f5f420494587241  ${user_script_path}/clean_v2ray_log.sh" | sha256sum -c - || exit 1
+    echo "21c30ba0085c4641ecf40928df3953e37572faab924533e9b3ad0dfa7df052b4  ${user_script_path}/clean_v2ray_log.sh" | sha256sum -c - || exit 1
     echo -e "\n"
 
     # 设置文件权限
