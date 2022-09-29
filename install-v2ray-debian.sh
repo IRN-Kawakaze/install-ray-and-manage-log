@@ -10,7 +10,7 @@ v2ray_log_path=/var/log/v2ray
 # v2ray 服务文件的存放路径
 v2ray_service_path=/etc/systemd/system
 # 脚本存放路径
-user_script_path=/etc/userscript
+user_script_path=/etc/user_scripts
 
 
 # 函数-运行前检查
