@@ -22,6 +22,7 @@ check_before_running() {
     [ -f /etc/debian_version ] || { echo -e "ERROR: This system is not supported, please install Debian.\n" ; exit 1 ; }
 
     # 检查依赖
+    which jq > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"jq\".\n" ; exit 1 ; }
     which rm > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"rm\".\n" ; exit 1 ; }
     which cat > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"cat\".\n" ; exit 1 ; }
     which sed > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"sed\".\n" ; exit 1 ; }
@@ -49,9 +50,7 @@ check_before_running() {
         fi
 
         # 获取 v2ray 最新 release 版本号
-        v2ray_release_latest_version="$(curl -sS -H 'Accept: application/vnd.github+json' https://api.github.com/repos/v2fly/v2ray-core/releases/latest \
-| grep 'tag_name' \
-| awk -F '"' '{print $4}')"
+        v2ray_release_latest_version="$(curl -sS -H 'Accept: application/vnd.github+json' https://api.github.com/repos/v2fly/v2ray-core/releases/latest | jq -r .tag_name)"
 
         # 检查已安装版本是否是最新版本，若是则提示无新版本可供更新并退出
         if [ "${v2ray_current_version}" == "${v2ray_release_latest_version#v}" ]; then
