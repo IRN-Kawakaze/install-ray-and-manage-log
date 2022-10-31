@@ -22,17 +22,17 @@ check_before_running() {
     [ -f /etc/debian_version ] || { echo -e "ERROR: This system is not supported, please install Debian.\n" ; exit 1 ; }
 
     # 检查依赖
-    command -v rm > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"rm\".\n" ; exit 1 ; }
-    command -v cat > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"cat\".\n" ; exit 1 ; }
-    command -v sed > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"sed\".\n" ; exit 1 ; }
-    command -v chmod > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"chmod\".\n" ; exit 1 ; }
-    command -v mkdir > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"mkdir\".\n" ; exit 1 ; }
-    command -v curl > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"curl\".\n" ; exit 1 ; }
-    command -v wget > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"wget\".\n" ; exit 1 ; }
-    command -v crontab > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"crontab\".\n" ; exit 1 ; }
-    command -v systemctl > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"systemctl\".\n" ; exit 1 ; }
-    command -v systemd-sysusers > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"systemd-sysusers\".\n" ; exit 1 ; }
-    command -v systemd-tmpfiles > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"systemd-tmpfiles\".\n" ; exit 1 ; }
+    which rm > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"rm\".\n" ; exit 1 ; }
+    which cat > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"cat\".\n" ; exit 1 ; }
+    which sed > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"sed\".\n" ; exit 1 ; }
+    which chmod > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"chmod\".\n" ; exit 1 ; }
+    which mkdir > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"mkdir\".\n" ; exit 1 ; }
+    which curl > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"curl\".\n" ; exit 1 ; }
+    which wget > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"wget\".\n" ; exit 1 ; }
+    which crontab > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"crontab\".\n" ; exit 1 ; }
+    which systemctl > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"systemctl\".\n" ; exit 1 ; }
+    which systemd-sysusers > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"systemd-sysusers\".\n" ; exit 1 ; }
+    which systemd-tmpfiles > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"systemd-tmpfiles\".\n" ; exit 1 ; }
 
     # 检查和 GitHub 的网络连接是否正常，如果不正常则直接退出
     wget --spider --quiet --tries=3 --timeout=15 https://raw.githubusercontent.com || { echo -e "ERROR: Cannot connect to GitHub.\n" ; exit 1 ; }
@@ -284,7 +284,7 @@ main() {
     check_before_running
 
     # 检查是否已安装 v2ray，如果已安装 v2ray，则运行“函数-更新 v2ray”，否则运行“函数-安装 v2ray”
-    command -v v2ray > /dev/null 2>&1
+    which v2ray > /dev/null 2>&1
     if [ "$?" == "0" ]; then
         update_v2ray
     else
