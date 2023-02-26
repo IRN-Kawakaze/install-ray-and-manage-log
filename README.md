@@ -5,7 +5,7 @@
 ### 下载 ray-install.sh：
 
 ```
-curl https://raw.githubusercontent.com/IRN-Kawakaze/install-v2ray-and-manage-log/main/ray-install.sh > ray-install.sh && \
+curl -L https://github.com/IRN-Kawakaze/install-ray-and-manage-log/raw/main/ray-install.sh > ray-install.sh && \
 echo 'a026c406c7ad37c8bb2fcb68a9c98192c79730a324116c4aae5ee0e630d6b7ef  ray-install.sh' | sha256sum -c -
 ```
 
