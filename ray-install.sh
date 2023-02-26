@@ -134,6 +134,18 @@ inst_ray() {
     cp "${dl_tmp_dir}/${ray_type}" "/usr/local/bin/${ray_type}"
     chmod 755 "/usr/local/bin/${ray_type}"
 
+    # 若 geo 文件夹不存在，则创建 geo 文件夹
+    if [ ! -d "/usr/local/share/${ray_type}" ]; then
+        mkdir -p "/usr/local/share/${ray_type}"
+        chmod 755 "/usr/local/share/${ray_type}"
+    fi
+
+    # 安装 geo 文件
+    cp "${dl_tmp_dir}/geoip.dat" "/usr/local/share/${ray_type}/geoip.dat"
+    cp "${dl_tmp_dir}/geosite.dat" "/usr/local/share/${ray_type}/geosite.dat"
+    chmod 644 "/usr/local/share/${ray_type}/geoip.dat"
+    chmod 644 "/usr/local/share/${ray_type}/geosite.dat"
+
     # 删除临时存放文件夹
     rm -rf "${dl_tmp_dir}"
 }
