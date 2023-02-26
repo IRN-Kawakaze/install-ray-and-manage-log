@@ -297,7 +297,7 @@ EOF
     chmod 755 ${user_script_path}/clean_${ray_type}_log.sh
 
     # 导出现有的定时任务
-    crontab -l > crontab.temp
+    crontab -l > crontab.temp || echo -e "\n"
 
     # 添加自动清理日志的定时任务，每个月清理一次
     echo "0 5 1 * * ${user_script_path}/clean_${ray_type}_log.sh > /dev/null 2>&1" >> crontab.temp
