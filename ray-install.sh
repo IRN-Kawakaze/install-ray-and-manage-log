@@ -30,7 +30,6 @@ check_before_running() {
     wget --spider --quiet --tries=3 --timeout=15 https://github.com || { echo -e "ERROR: Cannot connect to \"github.com\".\n"; exit 1; }
     wget --spider --quiet --tries=3 --timeout=15 https://api.github.com || { echo -e "ERROR: Cannot connect to \"api.github.com\".\n"; exit 1; }
     wget --spider --quiet --tries=3 --timeout=15 https://raw.githubusercontent.com || { echo -e "ERROR: Cannot connect to \"raw.githubusercontent.com\".\n"; exit 1; }
-    wget --spider --quiet --tries=3 --timeout=15 https://objects.githubusercontent.com || { echo -e "ERROR: Cannot connect to \"objects.githubusercontent.com\".\n"; exit 1; }
 
     # 获取 ray 的最新 release 的版本号
     ray_latest_release_version="$(curl -sS -H 'Accept: application/vnd.github+json' https://api.github.com/repos/${ray_repo}/releases/latest | jq -r .tag_name)"
