@@ -28,7 +28,6 @@ check_before_running() {
 
     # 检查和 GitHub 的网络连接是否正常，如果不正常则直接退出
     wget --spider --quiet --tries=3 --timeout=15 https://github.com || { echo -e "ERROR: Cannot connect to \"github.com\".\n"; exit 1; }
-    wget --spider --quiet --tries=3 --timeout=15 https://api.github.com || { echo -e "ERROR: Cannot connect to \"api.github.com\".\n"; exit 1; }
     wget --spider --quiet --tries=3 --timeout=15 https://raw.githubusercontent.com || { echo -e "ERROR: Cannot connect to \"raw.githubusercontent.com\".\n"; exit 1; }
 
     # 获取 ray 的最新 release 的版本号
