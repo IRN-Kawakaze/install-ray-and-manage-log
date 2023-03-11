@@ -129,7 +129,7 @@ inst_ray() {
     echo -e "\n"
 
     # 安装 ray
-    cp "${dl_tmp_dir}/${ray_type}" "/usr/local/bin/${ray_type}"
+    install "${dl_tmp_dir}/${ray_type}" "/usr/local/bin/${ray_type}"
     chmod 755 "/usr/local/bin/${ray_type}"
 
     # 若 geo 文件夹不存在，则创建 geo 文件夹
@@ -311,16 +311,16 @@ EOF
 # 函数-重启服务
 restart_service() {
     # 逐个重启所有运行中的 ray 服务
-    echo "$(systemctl list-units --type=service --state=running | grep "${ray_type}" | awk -F ' ' '{print $1}')" | while read running_service; do
-        systemctl restart ${running_service}
+    echo "$(systemctl list-units --type=service --state=running | grep "${ray_type}" | awk -F ' ' '{print $1}')" | while read running_service_name; do
+        systemctl restart ${running_service_name}
         sleep 2
-        systemctl status ${running_service}
+        systemctl status ${running_service_name}
         echo -e "\n"
     done
 }
 
 # 函数-安装流程
-install() {
+inst_cmd() {
     # 运行“函数-安装 ray”
     inst_ray
 
@@ -347,7 +347,7 @@ install() {
 }
 
 # 函数-升级流程
-upgrade() {
+upgr_cmd() {
     # 运行“函数-安装 ray”
     inst_ray
 
@@ -395,10 +395,10 @@ main() {
     # 检查是否已安装 ray，如果已安装 ray，则进行升级，否则进行安装
     if { which ${ray_type} > /dev/null 2>&1; }; then
         # 运行“函数-升级流程”
-        upgrade
+        upgr_cmd
     else
         # 运行“函数-安装流程”
-        install
+        inst_cmd
     fi
 }
 
