@@ -308,6 +308,17 @@ EOF
     rm crontab.temp
 }
 
+# 函数-重启服务
+restart_service() {
+    # 逐个重启所有运行中的 ray 服务
+    echo "$(systemctl list-units --type=service --state=running | grep "${ray_type}" | awk -F ' ' '{print $1}')" | while read running_service; do
+        systemctl restart ${running_service}
+        sleep 2
+        systemctl status ${running_service}
+        echo -e "\n"
+    done
+}
+
 # 函数-安装流程
 install() {
     # 运行“函数-安装 ray”
@@ -339,6 +350,9 @@ install() {
 upgrade() {
     # 运行“函数-安装 ray”
     inst_ray
+
+    # 运行“函数-重启服务”
+    restart_service
 
     # 提示 ray 升级完毕
     echo "=================================================="
