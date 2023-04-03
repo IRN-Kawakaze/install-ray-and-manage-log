@@ -311,12 +311,12 @@ EOF
 # 函数-重启服务
 restart_service() {
     # 逐个重启所有运行中的 ray 服务
-    echo "$(systemctl list-units --type=service --state=running | grep "${ray_type}" | awk -F ' ' '{print $1}')" | while read running_service_name; do
+    while read running_service_name; do
         systemctl restart ${running_service_name}
         sleep 2
         systemctl status ${running_service_name}
         echo -e "\n"
-    done
+    done <<< "$(systemctl list-units --type=service --state=running | grep "${ray_type}" | awk -F ' ' '{print $1}')"
 }
 
 # 函数-安装流程
