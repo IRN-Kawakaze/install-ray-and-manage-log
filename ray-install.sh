@@ -3,13 +3,13 @@
 # 函数-运行前检查
 check_before_running() {
     # 判断脚本是否由 root 用户运行，如果不是，则报错并退出
-    [ "$(whoami)" == "root" ] || { echo -e "ERROR: This script must be run by root, please run \"sudo su\" before running this script.\n"; exit 1; }
+    [ "$(whoami)" == 'root' ] || { echo -e "ERROR: This script must be run by root, please run \"sudo su\" before running this script.\n"; exit 1; }
 
     # 判断 /etc/debian_version 文件是否存在，如果不存在，则报错并退出
-    [ -f /etc/debian_version ] || { echo -e "ERROR: This system is not supported, please install Debian.\n"; exit 1; }
+    [ -f '/etc/debian_version' ] || { echo -e "ERROR: This system is not supported, please install Debian.\n"; exit 1; }
 
     # 判断 /usr/local/bin 文件夹是否存在，如果不存在，则报错并退出
-    [ -d /usr/local/bin ] || { echo -e "ERROR: Directory /usr/local/bin does not exist.\n"; exit 1; }
+    [ -d '/usr/local/bin' ] || { echo -e "ERROR: Directory /usr/local/bin does not exist.\n"; exit 1; }
 
     # 检查依赖
     which jq > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"jq\".\n"; exit 1; }
@@ -37,8 +37,8 @@ check_before_running() {
     [ "${ray_latest_release_version}" == "null" ] && { echo -e "ERROR: Github API rate limit exceeded.\n"; exit 1; }
     [ -z "${ray_latest_release_version}" ] && { echo -e "ERROR: Get ${ray_type} latest release version failed.\n"; exit 1; }
 
-    # 检查是否已安装 ray，若是则判断是否已安装最新版
-    if [ -f "/usr/local/bin/${ray_type}" ]; then
+    # 如果需要安装或更新 ray，则检查是否已安装 ray，若是则判断是否已安装最新版
+    if [[ "${action}" == 'install' && -f "/usr/local/bin/${ray_type}" ]]; then
         # 获取已安装的 ray 版本（不适用于 v5）
         ray_current_version="$(/usr/local/bin/${ray_type} -version 2> /dev/null | awk -F ' ' 'NR==1 {print $2}')"
 
@@ -117,7 +117,7 @@ inst_ray() {
     dl_tmp_dir="$(mktemp -d)"
 
     # 下载 ray 到临时存放文件夹
-    wget -P "${dl_tmp_dir}" "https://github.com/${ray_repo}/releases/download/${ray_latest_release_version}/${ray_type}-linux-${sys_arch}.zip" || exit 1
+    wget "${wget_opt[@]}" -P "${dl_tmp_dir}" "https://github.com/${ray_repo}/releases/download/${ray_latest_release_version}/${ray_type}-linux-${sys_arch}.zip" || exit 1
     echo -e "\n"
 
     # 检查安装包
@@ -370,14 +370,17 @@ repl_ipinfo_geoip() {
     dl_tmp_dir="$(mktemp -d)"
 
     # 下载本体及校验和文件
-    wget -P "${dl_tmp_dir}" https://github.com/IRN-Kawakaze/geoip/releases/latest/download/geoip.dat || exit 1
-    wget -P "${dl_tmp_dir}" https://github.com/IRN-Kawakaze/geoip/releases/latest/download/geoip.dat.sha256 || exit 1
+    wget "${wget_opt[@]}" -P "${dl_tmp_dir}" https://github.com/IRN-Kawakaze/geoip/releases/latest/download/geoip.dat || exit 1
+    echo -e "\n"
+    wget "${wget_opt[@]}" -P "${dl_tmp_dir}" https://github.com/IRN-Kawakaze/geoip/releases/latest/download/geoip.dat.sha256 || exit 1
+    echo -e "\n"
 
     # 校验文件
     (
         cd "${dl_tmp_dir}" && \
         sha256sum -c 'geoip.dat.sha256'
     ) || exit 1
+    echo -e "\n"
 
     # 替换文件并设置权限
     cp "${dl_tmp_dir}/geoip.dat" "/usr/local/share/${ray_type}/geoip.dat"
@@ -418,18 +421,36 @@ main() {
             ;;
     esac
 
+    # 获取动作
+    case "${2}" in
+        'install' | 'upgrade')
+            action='install'
+            ;;
+        'ipinfo')
+            action='ipinfo'
+            ;;
+        *)
+            echo "ERROR: Unsupported action."
+            echo ""
+            exit 1
+            ;;
+    esac
+
     # 设置路径变量，路径尾部均不需要以“/”结尾
     ray_config_path="/usr/local/etc/${ray_type}"
     ray_log_path="/var/log/${ray_type}"
     ray_service_path="/etc/systemd/system"
     user_script_path="/etc/user_scripts"
 
+    # 设置 wget 参数
+    wget_opt=("-q" "--show-progress")
+
     # 运行“函数-运行前检查”
     check_before_running
 
-    # 获取动作
-    case "${2}" in
-        'install' | 'upgrade')
+    # 执行对应动作
+    case "${action}" in
+        'install')
             # 检查是否已安装 ray，如果已安装 ray，则进行升级，否则进行安装
             if { which ${ray_type} > /dev/null 2>&1; }; then
                 # 运行“函数-升级流程”
@@ -442,11 +463,6 @@ main() {
         'ipinfo')
             # 运行“函数-替换为基于 IPinfo 的 geoip”
             repl_ipinfo_geoip
-            ;;
-        *)
-            echo "ERROR: Unsupported action."
-            echo ""
-            exit 1
             ;;
     esac
 }
