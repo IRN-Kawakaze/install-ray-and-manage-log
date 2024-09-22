@@ -6,7 +6,7 @@
 
 ```
 curl -L https://github.com/IRN-Kawakaze/install-ray-and-manage-log/raw/main/ray-install.sh > ray-install.sh && \
-echo 'a973f4e46d63880ddd2f71e9c6ab379ced763006af67e78d2b835f5561c1d84b  ray-install.sh' | sha256sum -c -
+echo '7e0d9ad16b2f0b7f7a81ea6ff83d37a64b68456851aed3ee1a95e9ced0b98ca1  ray-install.sh' | sha256sum -c -
 ```
 
 ##### 安装 V2Ray-core（v2ray 参数可缩写为：v2）：
