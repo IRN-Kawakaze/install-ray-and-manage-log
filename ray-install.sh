@@ -117,7 +117,7 @@ inst_ray() {
     dl_tmp_dir="$(mktemp -d)"
 
     # 下载 ray 到临时存放文件夹
-    wget "https://github.com/${ray_repo}/releases/download/${ray_latest_release_version}/${ray_type}-linux-${sys_arch}.zip" -P "${dl_tmp_dir}" || exit 1
+    wget -P "${dl_tmp_dir}" "https://github.com/${ray_repo}/releases/download/${ray_latest_release_version}/${ray_type}-linux-${sys_arch}.zip" || exit 1
     echo -e "\n"
 
     # 检查安装包
@@ -311,10 +311,10 @@ EOF
 # 函数-重启服务
 restart_service() {
     # 逐个重启所有运行中的 ray 服务
-    while read running_service_name; do
-        systemctl restart ${running_service_name}
+    while read -er running_service_name; do
+        systemctl restart "${running_service_name}"
         sleep 2
-        systemctl status ${running_service_name}
+        systemctl status "${running_service_name}"
         echo -e "\n"
     done <<< "$(systemctl list-units --type=service --state=running | grep "${ray_type}" | awk -F ' ' '{print $1}')"
 }
@@ -361,6 +361,41 @@ upgr_cmd() {
     echo ""
 }
 
+# 函数-替换为基于 IPinfo 的 geoip
+repl_ipinfo_geoip() {
+    # 若文件不存在，则报错并退出
+    [[ -f "/usr/local/share/${ray_type}/geoip.dat" ]] || { echo -e "ERROR: File \"/usr/local/share/${ray_type}/geoip.dat\" does not exist.\n"; exit 1; }
+
+    # 创建临时存放文件夹
+    dl_tmp_dir="$(mktemp -d)"
+
+    # 下载本体及校验和文件
+    wget -P "${dl_tmp_dir}" https://github.com/IRN-Kawakaze/geoip/releases/latest/download/geoip.dat || exit 1
+    wget -P "${dl_tmp_dir}" https://github.com/IRN-Kawakaze/geoip/releases/latest/download/geoip.dat.sha256 || exit 1
+
+    # 校验文件
+    (
+        cd "${dl_tmp_dir}" && \
+        sha256sum -c 'geoip.dat.sha256'
+    ) || exit 1
+
+    # 替换文件并设置权限
+    cp "${dl_tmp_dir}/geoip.dat" "/usr/local/share/${ray_type}/geoip.dat"
+    chmod 644 "/usr/local/share/${ray_type}/geoip.dat"
+
+    # 删除临时存放文件夹
+    rm -rf "${dl_tmp_dir}"
+
+    # 运行“函数-重启服务”
+    restart_service
+
+    # 提示 geoip 替换完毕
+    echo "=================================================="
+    echo "Replace ${ray_type}'s geoip.dat file successful."
+    echo "=================================================="
+    echo ""
+}
+
 # 函数-主函数
 main() {
     # 为显示内容做好准备
@@ -392,14 +427,28 @@ main() {
     # 运行“函数-运行前检查”
     check_before_running
 
-    # 检查是否已安装 ray，如果已安装 ray，则进行升级，否则进行安装
-    if { which ${ray_type} > /dev/null 2>&1; }; then
-        # 运行“函数-升级流程”
-        upgr_cmd
-    else
-        # 运行“函数-安装流程”
-        inst_cmd
-    fi
+    # 获取动作
+    case "${2}" in
+        'install' | 'upgrade')
+            # 检查是否已安装 ray，如果已安装 ray，则进行升级，否则进行安装
+            if { which ${ray_type} > /dev/null 2>&1; }; then
+                # 运行“函数-升级流程”
+                upgr_cmd
+            else
+                # 运行“函数-安装流程”
+                inst_cmd
+            fi
+            ;;
+        'ipinfo')
+            # 运行“函数-替换为基于 IPinfo 的 geoip”
+            repl_ipinfo_geoip
+            ;;
+        *)
+            echo "ERROR: Unsupported action."
+            echo ""
+            exit 1
+            ;;
+    esac
 }
 
 # 运行“函数-主函数”
