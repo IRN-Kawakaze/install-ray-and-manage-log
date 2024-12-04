@@ -312,10 +312,16 @@ EOF
 restart_service() {
     # 逐个重启所有运行中的 ray 服务
     while read -er running_service_name; do
-        systemctl restart "${running_service_name}"
-        sleep 2
-        systemctl status "${running_service_name}"
-        echo -e "\n"
+        # 如果有运行中的 ray 服务，则重启服务，否则提示无需重启
+        if [[ -n "${running_service_name}" ]]; then
+            systemctl restart "${running_service_name}"
+            sleep 2
+            systemctl status "${running_service_name}"
+            echo -e "\n"
+        else
+            echo "No running services need to restart, skip."
+            echo -e "\n"
+        fi
     done <<< "$(systemctl list-units --type=service --state=running | grep "${ray_type}" | awk -F ' ' '{print $1}')"
 }
 
