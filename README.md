@@ -1,12 +1,12 @@
 # 使用方法：
 
-## Debian 11：
+## Debian 12+：
 
 ### 下载 ray-install.sh：
 
 ```
 curl -L https://github.com/IRN-Kawakaze/install-ray-and-manage-log/raw/main/ray-install.sh > ray-install.sh && \
-echo '7f447bec34d6c9753b31964ac0cfae13957e9af7d65ab149016145db70ec3cba  ray-install.sh' | sha256sum -c -
+echo 'c6a81971937684d24a3b3c27d47d0db10cc41b5e8605524706b0e55f9eac02d3  ray-install.sh' | sha256sum -c -
 ```
 
 ##### 安装 V2Ray-core（v2ray 参数可缩写为：v2）：

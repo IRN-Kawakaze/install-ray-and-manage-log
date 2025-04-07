@@ -11,20 +11,11 @@ check_before_running() {
     # 判断 /usr/local/bin 文件夹是否存在，如果不存在，则报错并退出
     [ -d '/usr/local/bin' ] || { echo -e "ERROR: Directory /usr/local/bin does not exist.\n"; exit 1; }
 
-    # 检查依赖
-    which jq > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"jq\".\n"; exit 1; }
-    which rm > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"rm\".\n"; exit 1; }
-    which 7za > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"7za\".\n"; exit 1; }
-    which cat > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"cat\".\n"; exit 1; }
-    which sed > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"sed\".\n"; exit 1; }
-    which chmod > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"chmod\".\n"; exit 1; }
-    which mkdir > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"mkdir\".\n"; exit 1; }
-    which curl > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"curl\".\n"; exit 1; }
-    which wget > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"wget\".\n"; exit 1; }
-    which crontab > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"crontab\".\n"; exit 1; }
-    which systemctl > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"systemctl\".\n"; exit 1; }
-    which systemd-sysusers > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"systemd-sysusers\".\n"; exit 1; }
-    which systemd-tmpfiles > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"systemd-tmpfiles\".\n"; exit 1; }
+    # 命令依赖检查
+    cmd_need_test="7zz awk cat chmod cp crontab curl grep install jq mkdir mktemp rm sed sha256sum systemctl systemd-sysusers systemd-tmpfiles wget"
+    for tmp_cnt in ${cmd_need_test}; do
+        which "${tmp_cnt}" > /dev/null 2>&1 || { echo -e "ERROR: Cannot found command \"${tmp_cnt}\".\n"; exit 1; }
+    done
 
     # 检查和 GitHub 的网络连接是否正常，如果不正常则直接退出
     wget --spider --quiet --tries=3 --timeout=15 https://github.com || { echo -e "ERROR: Cannot connect to \"github.com\".\n"; exit 1; }
@@ -121,11 +112,11 @@ inst_ray() {
     echo -e "\n"
 
     # 检查安装包
-    7za t "${dl_tmp_dir}/${ray_type}-linux-${sys_arch}.zip" || exit 1
+    7zz t "${dl_tmp_dir}/${ray_type}-linux-${sys_arch}.zip" || exit 1
     echo -e "\n"
 
-    # 解压（注意，7za 命令的 -o 参数后面接路径时两者之间不能有空格）
-    7za x "${dl_tmp_dir}/${ray_type}-linux-${sys_arch}.zip" -o"${dl_tmp_dir}" || exit 1
+    # 解压（注意，7zz 命令的 -o 参数后面接路径时两者之间不能有空格）
+    7zz x "${dl_tmp_dir}/${ray_type}-linux-${sys_arch}.zip" -o"${dl_tmp_dir}" || exit 1
     echo -e "\n"
 
     # 安装 ray
